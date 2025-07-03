@@ -61,6 +61,9 @@ class OutlookMeetingsApp:
         # フレームの作成と配置
         self.frame = ttk.Frame(root, padding="10")
         self.frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        # フレーム内のすべての行に対して高さを設定
+        for i in range(5):  # 10行分を設定（必要な行数に応じて変更）
+            self.frame.grid_rowconfigure(i, minsize=27)  # 各行の高さを20pxに設定
 
         # 開始日と終了日の入力
         self.start_date_label = ttk.Label(self.frame, text="Start Date (YYYY-MM-DD):")
@@ -82,7 +85,7 @@ class OutlookMeetingsApp:
             2: tk.IntVar(value=0),
             3: tk.IntVar(value=1)
         }
-        ttk.Checkbutton(self.frame, text="0:Normal", variable=self.status_vars[0]).grid(row=2, column=1, padx=(20, 5), sticky=tk.W)
+        ttk.Checkbutton(self.frame, text="0:Normal", variable=self.status_vars[0]).grid(row=2, column=1, padx=(0, 5), sticky=tk.W)
         ttk.Checkbutton(self.frame, text="1:Meeting", variable=self.status_vars[1]).grid(row=2, column=2, padx=(5, 5), sticky=tk.W)
         ttk.Checkbutton(self.frame, text="2:Canceled", variable=self.status_vars[2]).grid(row=2, column=3, padx=(5, 5), sticky=tk.W)
         ttk.Checkbutton(self.frame, text="3:Request", variable=self.status_vars[3]).grid(row=2, column=4, padx=(5, 5), sticky=tk.W)
@@ -92,14 +95,14 @@ class OutlookMeetingsApp:
         self.output_folder_label.grid(row=3, column=0, sticky=tk.W)
         self.output_folder = os.path.join(os.path.expanduser("~"), "Downloads")
         self.output_folder_path = tk.StringVar(value=self.output_folder)
-        self.output_folder_entry = ttk.Entry(self.frame, textvariable=self.output_folder_path, state='readonly', width=50)
-        self.output_folder_entry.grid(row=3, column=1, columnspan=2, sticky=tk.W)
+        self.output_folder_entry = ttk.Entry(self.frame, textvariable=self.output_folder_path, state='readonly', width=80 )
+        self.output_folder_entry.grid(row=3, column=1, columnspan=4, sticky=tk.W)
         self.output_folder_button = ttk.Button(self.frame, text="Select Folder", command=self.select_output_folder)
-        self.output_folder_button.grid(row=3, column=3, sticky=tk.W)
+        self.output_folder_button.grid(row=3, column=5, sticky=tk.W)
 
         # 実行ボタンの作成
         self.run_button = ttk.Button(self.frame, text="Run", command=self.run_analysis)
-        self.run_button.grid(row=4, columnspan=4)
+        self.run_button.grid(row=4, columnspan=6)
 
         # 結果表示用のTreeview
         self.tree = ttk.Treeview(self.frame, columns=("Month", "Subject", "Count", "Total Duration (minutes)"), show="headings")
@@ -152,7 +155,7 @@ class OutlookMeetingsApp:
         for _, row in df.iterrows():
             self.tree.insert("", "end", values=(row["Month"], row["Subject"], row["Count"], row["Total Duration (minutes)"]))
         self.progress_popup.close()
-        messagebox.showinfo("Complete", f"Saved data to:\n{file_path}")
+        messagebox.showinfo("Complete", f"You have successfully saved the data to :\n{file_path}")
 
 # アプリケーションの起動
 if __name__ == "__main__":
