@@ -89,31 +89,40 @@ class OutlookMeetingsApp:
         ttk.Checkbutton(self.frame, text="1:Meeting", variable=self.status_vars[1]).grid(row=2, column=2, padx=(5, 5), sticky=tk.W)
         ttk.Checkbutton(self.frame, text="2:Canceled", variable=self.status_vars[2]).grid(row=2, column=3, padx=(5, 5), sticky=tk.W)
         ttk.Checkbutton(self.frame, text="3:Request", variable=self.status_vars[3]).grid(row=2, column=4, padx=(5, 5), sticky=tk.W)
+        
+        # カテゴリフィルターの入力（オプション）
+        self.category_label = ttk.Label(self.frame, text="Category Filter:")
+        self.category_label.grid(row=3, column=0, sticky=tk.W)
+        self.category_entry = ttk.Entry(self.frame, width=80)
+        self.category_entry.grid(row=3, column=1, columnspan=3,sticky=tk.W)
+        self.exclude_var = tk.IntVar(value=0)
+        self.exclude_checkbox = ttk.Checkbutton(self.frame, text="Exclude Category", variable=self.exclude_var)
+        self.exclude_checkbox.grid(row=3, column=5, sticky=tk.W)
 
         # 出力フォルダ選択
         self.output_folder_label = ttk.Label(self.frame, text="Output Folder:")
-        self.output_folder_label.grid(row=3, column=0, sticky=tk.W)
+        self.output_folder_label.grid(row=4, column=0, sticky=tk.W)
         self.output_folder = os.path.join(os.path.expanduser("~"), "Downloads")
         self.output_folder_path = tk.StringVar(value=self.output_folder)
         self.output_folder_entry = ttk.Entry(self.frame, textvariable=self.output_folder_path, state='readonly', width=80 )
-        self.output_folder_entry.grid(row=3, column=1, columnspan=4, sticky=tk.W)
+        self.output_folder_entry.grid(row=4, column=1, columnspan=4, sticky=tk.W)
         self.output_folder_button = ttk.Button(self.frame, text="Select Folder", command=self.select_output_folder)
-        self.output_folder_button.grid(row=3, column=5, sticky=tk.W)
+        self.output_folder_button.grid(row=4, column=5, sticky=tk.W)
 
         # 実行ボタンの作成
         self.run_button = ttk.Button(self.frame, text="Run", command=self.run_analysis)
-        self.run_button.grid(row=4, columnspan=6)
+        self.run_button.grid(row=5, columnspan=6)
 
         # 結果表示用のTreeview
-        self.tree = ttk.Treeview(self.frame, columns=("Month", "Subject", "Count", "Total Duration (minutes)"), show="headings")
+        self.tree = ttk.Treeview(self.frame, columns=("Month", "Subject", "Count", "Total Duration (minutes)", "Categories"), show="headings")
         for col in self.tree["columns"]:
             self.tree.heading(col, text=col)
-        self.tree.grid(row=5, column=0, columnspan=6, sticky=(tk.W, tk.E, tk.N, tk.S))
+        self.tree.grid(row=6, column=0, columnspan=6, sticky=(tk.W, tk.E, tk.N, tk.S))
 
         # スクロールバーの設定
         self.scrollbar = ttk.Scrollbar(self.frame, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscroll=self.scrollbar.set)
-        self.scrollbar.grid(row=5, column=6, sticky=(tk.N, tk.S))
+        self.scrollbar.grid(row=6, column=6, sticky=(tk.N, tk.S))
 
     # 出力フォルダ選択処理
     def select_output_folder(self):
@@ -134,13 +143,15 @@ class OutlookMeetingsApp:
             start_date = datetime.datetime.strptime(self.start_date_entry.get(), "%Y-%m-%d")
             end_date = datetime.datetime.strptime(self.end_date_entry.get(), "%Y-%m-%d") + datetime.timedelta(days=1)
             meeting_types = [status for status, var in self.status_vars.items() if var.get() == 1]
+            category_filter = self.category_entry.get().strip()
+            exclude = bool(self.exclude_var.get())
 
             # 進捗率を更新するコールバック関数
             def progress_callback(value):
                 self.root.after(0, self.progress_popup.update_progress, value)
 
             # 会議データ取得
-            file_path = get_meetings(start_date, end_date, self.output_folder, meeting_types, progress_callback)
+            file_path = get_meetings(start_date, end_date, self.output_folder, meeting_types, progress_callback,category_filter, exclude)
             df = pd.read_excel(file_path, engine='openpyxl')
 
             self.root.after(0, self._update_treeview, df, file_path)
@@ -153,7 +164,7 @@ class OutlookMeetingsApp:
         for row in self.tree.get_children():
             self.tree.delete(row)
         for _, row in df.iterrows():
-            self.tree.insert("", "end", values=(row["Month"], row["Subject"], row["Count"], row["Total Duration (minutes)"]))
+            self.tree.insert("", "end", values=(row["Month"], row["Subject"], row["Count"], row["Total Duration (minutes)"], row["Categories"]))
         self.progress_popup.close()
         messagebox.showinfo("Complete", f"You have successfully saved the data to :\n{file_path}")
 
