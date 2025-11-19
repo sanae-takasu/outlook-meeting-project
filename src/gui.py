@@ -114,7 +114,7 @@ class OutlookMeetingsApp:
         self.run_button.grid(row=5, columnspan=6)
 
         # 結果表示用のTreeview
-        self.tree = ttk.Treeview(self.frame, columns=("Month", "Subject", "Count", "Total Duration (minutes)", "Categories"), show="headings")
+        self.tree = ttk.Treeview(self.frame, columns=("Month", "Subject Categories","Subject", "Count", "Total Duration (minutes)", "Categories"), show="headings")
         for col in self.tree["columns"]:
             self.tree.heading(col, text=col)
         self.tree.grid(row=6, column=0, columnspan=6, sticky=(tk.W, tk.E, tk.N, tk.S))
@@ -164,7 +164,7 @@ class OutlookMeetingsApp:
         for row in self.tree.get_children():
             self.tree.delete(row)
         for _, row in df.iterrows():
-            self.tree.insert("", "end", values=(row["Month"], row["Subject"], row["Count"], row["Total Duration (minutes)"], row["Categories"]))
+            self.tree.insert("", "end", values=(row["Month"], row["Subject Categories"], row["Subject"], row["Count"], row["Total Duration (minutes)"], row["Categories"]))
         self.progress_popup.close()
         messagebox.showinfo("Complete", f"You have successfully saved the data to :\n{file_path}")
 

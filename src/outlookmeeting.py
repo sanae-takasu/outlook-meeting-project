@@ -6,6 +6,11 @@ import os
 import time
 
 def get_meetings(start_date, end_date, download_folder, meeting_types,progress_callback,category_filter,exclude):
+    
+    import pythoncom
+    pythoncom.CoInitialize() 
+
+
     # Outlookアプリケーションを初期化
     outlook = win32com.client.Dispatch("Outlook.Application")
     namespace = outlook.GetNamespace("MAPI")
@@ -59,12 +64,21 @@ def get_meetings(start_date, end_date, download_folder, meeting_types,progress_c
                         continue  # 除外対象ならスキップ
                     elif not exclude and not matched:
                         continue  # 絞り込み対象でなければスキップ
-
+                
+                
+                # 件名に「:」または「：」がある場合、その前で分類
+                if ":" in meeting_subject:
+                    meeting_subject_categories = meeting_subject.split(":")[0].strip()
+                elif "：" in meeting_subject:
+                    meeting_subject_categories = meeting_subject.split("：")[0].strip()
+                else:
+                    meeting_subject_categories = "None"
 
                 # 集計データに追加
                 meetings_by_month[meeting_month][meeting_subject]["count"] += 1
                 meetings_by_month[meeting_month][meeting_subject]["total_duration"] += meeting_duration
                 meetings_by_month[meeting_month][meeting_subject]["categories"] = meeting_categories  # カテゴリを追加
+                meetings_by_month[meeting_month][meeting_subject]["meeting_subject_categories"] = meeting_subject_categories # 件名カテゴリを追加
 
         except Exception as e:
             # Outlookアイテムにアクセスできない場合などの例外処理
@@ -81,13 +95,21 @@ def get_meetings(start_date, end_date, download_folder, meeting_types,progress_c
     data = []
     for month, meetings in meetings_by_month.items():
         for subject, details in meetings.items():
+            total_minutes = details["total_duration"].total_seconds() / 60
+            total_hours = total_minutes / 60
+            total_days = total_hours / 7.75  # 1日=7.75時間換算
             data.append({
-                "Month": month,  # YYYY/MM形式の月
+                "Month": month,
+                "Subject Categories": details["meeting_subject_categories"],
                 "Subject": subject,
                 "Count": details["count"],
-                "Total Duration (minutes)": details["total_duration"].total_seconds() / 60,
-                "Categories": details.get("categories", "None")  # カテゴリを追加
+                "Total Duration (minutes)": round(total_minutes, 2),
+                "Total Duration (hours)": round(total_hours, 2),
+                "Total Duration (days)": round(total_days, 2),
+                "Categories": details.get("categories", "None")
             })
+
+
 
     df = pd.DataFrame(data)
 
