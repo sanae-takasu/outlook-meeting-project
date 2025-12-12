@@ -200,13 +200,13 @@ class OutlookMeetingsApp:
         # カラム名とラベルを選択
         if display == "minutes":
             col = "Total Duration (minutes)"
-            label = "合計時間（分）"
+            label = "Total Duration (minutes)"
         elif display == "hours":
             col = "Total Duration (hours)"
-            label = "合計時間（時）"
+            label = "Total Duration (hours)"
         else:
             col = "Total Duration (days)"
-            label = "合計時間（日）"
+            label = "Total Duration (days)"
 
         columns = ("Month", "Subject Categories", "Subject", "Count", col, "Categories")
         self.tree["columns"] = columns
