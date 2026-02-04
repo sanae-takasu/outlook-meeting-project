@@ -112,7 +112,7 @@ def get_meetings(start_date, end_date, download_folder, meeting_types, progress_
         for subject, details in meetings.items():
             total_minutes = details["total_duration"].total_seconds() / 60
             total_hours = total_minutes / 60
-            total_days = total_hours / 7.75  # 1 日=7.75h 換算（元仕様踏襲）
+            total_days = total_hours / 8  # 1 日=8h 換算（元仕様踏襲）
             rows.append({
                 "Month": month,
                 "Subject Categories": details["meeting_subject_categories"],

@@ -109,11 +109,11 @@ class OutlookMeetingsApp:
         ttk.Button(self.frame, text="Select Folder", command=self.select_output_folder).grid(row=4, column=5, sticky=tk.W)
 
         # Display unit
-        self.display_format = tk.StringVar(value="minutes")
+        self.display_format = tk.StringVar(value="Minutes")
         ttk.Label(self.frame, text="Display format:").grid(row=5, column=0, sticky=tk.W)
-        ttk.Radiobutton(self.frame, text="minutes", variable=self.display_format, value="minutes").grid(row=5, column=1, sticky=tk.W)
-        ttk.Radiobutton(self.frame, text="hours", variable=self.display_format, value="hours").grid(row=5, column=2, sticky=tk.W)
-        ttk.Radiobutton(self.frame, text="days", variable=self.display_format, value="days").grid(row=5, column=3, sticky=tk.W)
+        ttk.Radiobutton(self.frame, text="Minutes", variable=self.display_format, value="Minutes").grid(row=5, column=1, sticky=tk.W)
+        ttk.Radiobutton(self.frame, text="Hours", variable=self.display_format, value="Hours").grid(row=5, column=2, sticky=tk.W)
+        ttk.Radiobutton(self.frame, text="Days", variable=self.display_format, value="Days").grid(row=5, column=3, sticky=tk.W)
 
         # Run
         ttk.Button(self.frame, text="Run", command=self.run_analysis).grid(row=6, columnspan=6)
@@ -234,4 +234,3 @@ def launch_app():
     root = tk.Tk()
     app = OutlookMeetingsApp(root)
     root.mainloop()
-    

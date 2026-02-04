@@ -1,94 +1,83 @@
 # Outlook Meeting Project
 
-This project is designed to interact with Microsoft Outlook's calendar to extract meeting details and prepare data for output. It provides functionality to retrieve meetings within a specified date range, categorize them by month, and calculate total durations.
+This project provides tools and a GUI to extract and analyze meeting data from Microsoft Outlook.
+It retrieves meetings in a specified date range, categorizes them by month, calculates total durations,
+and exports the results to Excel. A Tkinter-based GUI is included for easy operation.
+
+---
 
 ## Project Structure
 
-```
 outlook-meeting-project
-├── outlookmeeting
-│   ├── __init__.py
-│   ├── gui.py
-│   ├── outlookmeeting.py
+├── main.py
+├── app
+│ ├── **init**.py
+│ ├── ui
+│ │ ├── **init**.py
+│ │ └── gui.py
+│ └── services
+│ ├── **init**.py
+│ └── outlook_service.py
 ├── tests
-│   └── test_outlookmeeting.py
+│ └── test_outlook_service.py
 ├── requirements.txt
+├── outlookmeetings.spec
 ├── .gitignore
 └── README.md
-```
+
+---
 
 ## Features
 
-- Retrieve meetings from Microsoft Outlook within a specified date range.
-- Categorize meetings by month.
-- Calculate total meeting durations.
-- Export meeting data to an Excel file for further analysis.
-- Interactive GUI for user-friendly operation.
+- Retrieve Outlook calendar meetings within a specified date range
+- Categorize meetings by month
+- Filter by MeetingStatus
+- Filter or exclude categories
+- Calculate total durations (minutes/hours/days)
+- Export results to Excel
+- Interactive GUI
+
+---
 
 ## Installation
 
-To set up the project, follow these steps:
+1. git clone <repository-url>
+2. cd outlook-meeting-project
+3. pip install -r requirements.txt
 
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   ```
-2. Navigate to the project directory:
-   ```
-   cd outlook-meeting-project
-   ```
-3. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+Requirements:
 
-**Note:** This project requires Python 3.8 or higher. Ensure you have the correct version installed before proceeding.
+- Windows
+- Outlook installed
+- Python 3.8+
+- pywin32
+
+---
 
 ## Usage
 
-### Running the GUI Application
+### Run GUI
 
-To launch the GUI application, run the following command:
+python main.py
 
-```
-python src/gui.py
-```
+### Programmatically
 
-The GUI allows you to:
+from app.services.outlook_service import get_meetings
 
-- Select a date range for retrieving meetings.
-- Filter meetings by status and categories.
-- Export the results to an Excel file.
-- View the results directly within the application.
-
-### Running the Script Programmatically
-
-To use the script programmatically, you can call the `get_meetings` function from `outlookmeeting.py`. Example:
-
-```python
-from outlookmeeting import get_meetings
-import datetime
-
-start_date = datetime.datetime(2023, 1, 1)
-end_date = datetime.datetime(2023, 1, 31)
-download_folder = "path/to/output/folder"
-meeting_types = [0, 1]  # Normal and Meeting
-progress_callback = lambda progress: print(f"Progress: {progress}%")
-category_filter = "Work, Personal"
-exclude = False
-
-file_path = get_meetings(start_date, end_date, download_folder, meeting_types, progress_callback, category_filter, exclude)
-print(f"Meetings exported to: {file_path}")
-```
+---
 
 ## Testing
 
-To run the tests, navigate to the project directory and execute:
-
-```
 pytest tests/
-```
+
+---
+
+## Building EXE
+
+pyinstaller outlookmeetings.spec
+
+---
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+MIT License
