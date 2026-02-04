@@ -62,6 +62,8 @@ class OutlookMeetingsApp:
         # メインウィンドウ
         self.root = root
         self.root.title("Outlook Meetings")
+        self.df = None
+        self.last_file_path = None
 
         # フレーム
         self.frame = ttk.Frame(root, padding="10")
@@ -109,11 +111,11 @@ class OutlookMeetingsApp:
         ttk.Button(self.frame, text="Select Folder", command=self.select_output_folder).grid(row=4, column=5, sticky=tk.W)
 
         # Display unit
-        self.display_format = tk.StringVar(value="Minutes")
+        self.display_format = tk.StringVar(value="minutes")
         ttk.Label(self.frame, text="Display format:").grid(row=5, column=0, sticky=tk.W)
-        ttk.Radiobutton(self.frame, text="Minutes", variable=self.display_format, value="Minutes").grid(row=5, column=1, sticky=tk.W)
-        ttk.Radiobutton(self.frame, text="Hours", variable=self.display_format, value="Hours").grid(row=5, column=2, sticky=tk.W)
-        ttk.Radiobutton(self.frame, text="Days", variable=self.display_format, value="Days").grid(row=5, column=3, sticky=tk.W)
+        ttk.Radiobutton(self.frame, text="Minutes", variable=self.display_format, value="minutes", command=self.on_display_change).grid(row=5, column=1, sticky=tk.W)
+        ttk.Radiobutton(self.frame, text="Hours", variable=self.display_format, value="hours", command=self.on_display_change).grid(row=5, column=2, sticky=tk.W)
+        ttk.Radiobutton(self.frame, text="Days", variable=self.display_format, value="days", command=self.on_display_change).grid(row=5, column=3, sticky=tk.W)
 
         # Run
         ttk.Button(self.frame, text="Run", command=self.run_analysis).grid(row=6, columnspan=6)
@@ -146,6 +148,12 @@ class OutlookMeetingsApp:
         thread = threading.Thread(target=self._run_analysis_task, daemon=True)
         thread.start()
 
+    # ラジオ切替時に、既存データがあれば表示のみ切替
+    def on_display_change(self):
+        if self.df is not None and self.last_file_path is not None:
+            display = self.display_format.get()  # 'minutes' / 'hours' / 'days'
+            self._update_treeview(self.df, self.last_file_path, display,False)
+
     # バックグラウンド処理本体
     def _run_analysis_task(self):
         import pythoncom
@@ -177,6 +185,10 @@ class OutlookMeetingsApp:
             # 読み込み
             df = pd.read_excel(file_path, engine='openpyxl')
 
+            # 最新を保持
+            self.df = df
+            self.last_file_path = file_path
+            
             # Treeview 更新（display を渡す）
             self.root.after(0, self._update_treeview, df, file_path, display)
 
@@ -189,7 +201,7 @@ class OutlookMeetingsApp:
                     self.progress_popup.close()
             self.root.after(0, show_err)
 
-    def _update_treeview(self, df, file_path, display="minutes"):
+    def _update_treeview(self, df, file_path, display="minutes",msg=True):
         # カラム名とラベルを選択
         if display == "minutes":
             col = "Total Duration (minutes)"
@@ -227,7 +239,8 @@ class OutlookMeetingsApp:
 
         # 完了
         self.progress_popup.close()
-        messagebox.showinfo("Complete", f"You have successfully saved the data to :\n{file_path}")
+        if msg:
+            messagebox.showinfo("Complete", f"You have successfully saved the data to :\n{file_path}")
 
 
 def launch_app():
