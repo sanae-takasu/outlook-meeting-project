@@ -1,12 +1,14 @@
-import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
-from tkcalendar import DateEntry
-import pandas as pd
+# app/ui/gui.py
 import datetime
 import os
 import threading
+import tkinter as tk
+from tkinter import ttk, filedialog, messagebox
 
-from outlookmeeting import get_meetings
+from tkcalendar import DateEntry
+import pandas as pd
+
+from app.services.outlook_service import get_meetings
 
 
 # プログレスバー付きポップアップウィンドウ
@@ -69,63 +71,54 @@ class OutlookMeetingsApp:
         for i in range(8):
             self.frame.grid_rowconfigure(i, minsize=27)
 
-        # 開始日・終了日
-        self.start_date_label = ttk.Label(self.frame, text="Start Date (YYYY-MM-DD):")
-        self.start_date_label.grid(row=0, column=0, sticky=tk.W)
+        # Dates
+        ttk.Label(self.frame, text="Start Date (YYYY-MM-DD):").grid(row=0, column=0, sticky=tk.W)
         self.start_date_entry = DateEntry(self.frame, date_pattern='yyyy-mm-dd')
         self.start_date_entry.grid(row=0, column=1, sticky=tk.W)
 
-        self.end_date_label = ttk.Label(self.frame, text="End Date (YYYY-MM-DD):")
-        self.end_date_label.grid(row=1, column=0, sticky=tk.W)
+        ttk.Label(self.frame, text="End Date (YYYY-MM-DD):").grid(row=1, column=0, sticky=tk.W)
         self.end_date_entry = DateEntry(self.frame, date_pattern='yyyy-mm-dd')
         self.end_date_entry.grid(row=1, column=1, sticky=tk.W)
 
-        # MeetingStatus チェックボックス
-        self.meeting_status_label = ttk.Label(self.frame, text="Meeting Status:")
-        self.meeting_status_label.grid(row=2, column=0, sticky=tk.W)
+        # MeetingStatus
+        ttk.Label(self.frame, text="Meeting Status:").grid(row=2, column=0, sticky=tk.W)
         self.status_vars = {
             0: tk.IntVar(value=1),  # olNonMeeting
             1: tk.IntVar(value=1),  # olMeeting
             2: tk.IntVar(value=0),  # olMeetingCancelled
-            3: tk.IntVar(value=1)   # olMeetingReceived
+            3: tk.IntVar(value=1),  # olMeetingReceived
         }
         ttk.Checkbutton(self.frame, text="0:Normal",   variable=self.status_vars[0]).grid(row=2, column=1, padx=(0, 5), sticky=tk.W)
         ttk.Checkbutton(self.frame, text="1:Meeting",  variable=self.status_vars[1]).grid(row=2, column=2, padx=(5, 5), sticky=tk.W)
         ttk.Checkbutton(self.frame, text="2:Canceled", variable=self.status_vars[2]).grid(row=2, column=3, padx=(5, 5), sticky=tk.W)
         ttk.Checkbutton(self.frame, text="3:Request",  variable=self.status_vars[3]).grid(row=2, column=4, padx=(5, 5), sticky=tk.W)
 
-        # カテゴリフィルタ
-        self.category_label = ttk.Label(self.frame, text="Category Filter:")
-        self.category_label.grid(row=3, column=0, sticky=tk.W)
+        # Category filter
+        ttk.Label(self.frame, text="Category Filter:").grid(row=3, column=0, sticky=tk.W)
         self.category_entry = ttk.Entry(self.frame, width=80)
         self.category_entry.grid(row=3, column=1, columnspan=3, sticky=tk.W)
 
         self.exclude_var = tk.IntVar(value=0)
-        self.exclude_checkbox = ttk.Checkbutton(self.frame, text="Exclude Category", variable=self.exclude_var)
-        self.exclude_checkbox.grid(row=3, column=5, sticky=tk.W)
+        ttk.Checkbutton(self.frame, text="Exclude Category", variable=self.exclude_var).grid(row=3, column=5, sticky=tk.W)
 
-        # 出力フォルダ選択
-        self.output_folder_label = ttk.Label(self.frame, text="Output Folder:")
-        self.output_folder_label.grid(row=4, column=0, sticky=tk.W)
+        # Output folder
+        ttk.Label(self.frame, text="Output Folder:").grid(row=4, column=0, sticky=tk.W)
         self.output_folder = os.path.join(os.path.expanduser("~"), "Downloads")
         self.output_folder_path = tk.StringVar(value=self.output_folder)
-        self.output_folder_entry = ttk.Entry(self.frame, textvariable=self.output_folder_path, state='readonly', width=80)
-        self.output_folder_entry.grid(row=4, column=1, columnspan=4, sticky=tk.W)
-        self.output_folder_button = ttk.Button(self.frame, text="Select Folder", command=self.select_output_folder)
-        self.output_folder_button.grid(row=4, column=5, sticky=tk.W)
+        ttk.Entry(self.frame, textvariable=self.output_folder_path, state='readonly', width=80).grid(row=4, column=1, columnspan=4, sticky=tk.W)
+        ttk.Button(self.frame, text="Select Folder", command=self.select_output_folder).grid(row=4, column=5, sticky=tk.W)
 
-        # 表示形式（初期は「分」）
+        # Display unit
         self.display_format = tk.StringVar(value="minutes")
-        ttk.Label(self.frame, text="表示形式:").grid(row=5, column=0, sticky=tk.W)
-        ttk.Radiobutton(self.frame, text="分", variable=self.display_format, value="minutes").grid(row=5, column=1, sticky=tk.W)
-        ttk.Radiobutton(self.frame, text="時", variable=self.display_format, value="hours").grid(row=5, column=2, sticky=tk.W)
-        ttk.Radiobutton(self.frame, text="日", variable=self.display_format, value="days").grid(row=5, column=3, sticky=tk.W)
+        ttk.Label(self.frame, text="Display format:").grid(row=5, column=0, sticky=tk.W)
+        ttk.Radiobutton(self.frame, text="minutes", variable=self.display_format, value="minutes").grid(row=5, column=1, sticky=tk.W)
+        ttk.Radiobutton(self.frame, text="hours", variable=self.display_format, value="hours").grid(row=5, column=2, sticky=tk.W)
+        ttk.Radiobutton(self.frame, text="days", variable=self.display_format, value="days").grid(row=5, column=3, sticky=tk.W)
 
-        # 実行ボタン
-        self.run_button = ttk.Button(self.frame, text="Run", command=self.run_analysis)
-        self.run_button.grid(row=6, columnspan=6)
+        # Run
+        ttk.Button(self.frame, text="Run", command=self.run_analysis).grid(row=6, columnspan=6)
 
-        # 結果表示 Treeview
+        # Tree
         self.tree = ttk.Treeview(
             self.frame,
             columns=("Month", "Subject Categories", "Subject", "Count", "Total Duration (minutes)", "Categories"),
@@ -137,7 +130,7 @@ class OutlookMeetingsApp:
 
         # スクロールバー
         self.scrollbar = ttk.Scrollbar(self.frame, orient=tk.VERTICAL, command=self.tree.yview)
-        self.tree.configure(yscrollcommand=self.scrollbar.set)  # ←修正
+        self.tree.configure(yscrollcommand=self.scrollbar.set)
         self.scrollbar.grid(row=7, column=6, sticky=(tk.N, tk.S))
 
     # 出力フォルダ選択
@@ -214,8 +207,8 @@ class OutlookMeetingsApp:
             self.tree.heading(c, text=c if c != col else label)
 
         # 既存行クリア
-        for row in self.tree.get_children():
-            self.tree.delete(row)
+        for row_id in self.tree.get_children():
+            self.tree.delete(row_id)
 
         # データインサート
         for _, row in df.iterrows():
@@ -237,8 +230,8 @@ class OutlookMeetingsApp:
         messagebox.showinfo("Complete", f"You have successfully saved the data to :\n{file_path}")
 
 
-# アプリケーション起動
-if __name__ == "__main__":
+def launch_app():
     root = tk.Tk()
     app = OutlookMeetingsApp(root)
     root.mainloop()
+    

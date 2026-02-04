@@ -12,7 +12,6 @@ omt/
 # PyInstaller関連
 build/
 dist/
-*.spec
 
 # エディタ/IDE関連
 .vscode/
