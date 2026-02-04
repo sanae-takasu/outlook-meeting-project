@@ -7,7 +7,7 @@ and exports the results to Excel. A Tkinter-based GUI is included for easy opera
 ---
 
 ## Project Structure
-
+```
 outlook-meeting-project
 ├── main.py
 ├── app
@@ -24,7 +24,7 @@ outlook-meeting-project
 ├── outlookmeetings.spec
 ├── .gitignore
 └── README.md
-
+```
 ---
 
 ## Features
